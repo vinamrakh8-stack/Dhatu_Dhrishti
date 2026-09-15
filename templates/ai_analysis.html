@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dhatu Drishti — AI Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+ --bg:#050A10;--bg-deep:#03060A;--panel:#0C1620;--panel-2:#0F1C29;
+ --glass:rgba(255,255,255,.045);--glass-brd:rgba(255,255,255,.09);--line:rgba(255,255,255,.08);
+ --text:#EDF4F7;--text-dim:#94A9B8;--text-faint:#59707F;
+ --green:#27C98B;--green-soft:rgba(39,201,139,.14);--cyan:#2FCFE8;--cyan-soft:rgba(47,207,232,.14);
+ --ore:#E3A857;--ore-soft:rgba(227,168,87,.14);--amber:#F0B429;--amber-soft:rgba(240,180,41,.14);
+ --red:#EF6461;--red-soft:rgba(239,100,97,.14);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.grid-field{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);background-size:46px 46px;mask-image:radial-gradient(ellipse 85% 55% at 50% 0%,black 35%,transparent 88%)}
+header{position:sticky;top:0;z-index:60;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px clamp(16px,3vw,40px);background:rgba(5,10,16,.82);backdrop-filter:blur(18px) saturate(150%);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}.brand-logo{width:42px;height:42px;flex:0 0 42px}.brand-text{display:flex;flex-direction:column;line-height:1.12;min-width:0}
+.brand-text .name{font-family:'Manrope';font-size:19px;font-weight:800;background:linear-gradient(95deg,#fff 40%,var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand-text .sub{font-size:10px;color:var(--text-faint);letter-spacing:.14em;margin-top:2px;font-weight:600;white-space:nowrap}
+.moil-tag{margin-left:10px;padding:5px 11px;font-size:11px;font-weight:700;letter-spacing:.09em;color:var(--ore);border:1px solid rgba(227,168,87,.32);border-radius:100px;background:var(--ore-soft)}
+nav{display:flex;align-items:center;gap:2px}nav a{color:var(--text-dim);text-decoration:none;font-size:14px;font-weight:500;padding:9px 14px;border-radius:9px;position:relative}
+nav a:hover,nav a.active{color:var(--text);background:var(--glass)}nav a.active::after{content:'';position:absolute;left:14px;right:14px;bottom:3px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--cyan),var(--green))}
+.header-actions{display:flex;align-items:center;gap:8px}.profile-btn,.menu-btn{border:1px solid var(--glass-brd);background:var(--glass);color:var(--text);border-radius:10px;min-height:38px;padding:0 12px}.profile-btn{width:38px;padding:0;display:grid;place-items:center}.menu-btn{display:none;font-size:20px}
+.mobile-nav{display:none;position:absolute;top:100%;left:0;right:0;padding:10px 16px;background:rgba(5,10,16,.97);border-bottom:1px solid var(--line)}.mobile-nav.open{display:grid}.mobile-nav a{padding:13px;color:var(--text-dim);text-decoration:none;border-radius:9px}.mobile-nav a:hover{background:var(--glass);color:var(--text)}
+main{position:relative;z-index:1;max-width:1500px;margin:auto;padding:clamp(24px,4vw,46px) clamp(16px,3vw,40px) 70px}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:24px}.eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--cyan);background:var(--cyan-soft);border:1px solid rgba(47,207,232,.25);padding:7px 12px;border-radius:100px;margin-bottom:13px}.page-head h1{font-family:'Manrope';font-size:clamp(28px,4vw,43px);line-height:1.1}.page-head p{margin-top:10px;color:var(--text-dim);font-size:14px;line-height:1.6;max-width:760px}.live-chip{display:flex;align-items:center;gap:8px;color:var(--text-dim);font-size:12px;white-space:nowrap}.live-chip i{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 5px rgba(39,201,139,.08)}
+.section{margin-top:28px}.section-title{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:15px}.section-title h2{font-family:'Manrope';font-size:20px}.section-title p{color:var(--text-faint);font-size:12px}
+.card{background:linear-gradient(160deg,var(--glass),rgba(255,255,255,.015));border:1px solid var(--glass-brd);border-radius:18px;padding:22px;position:relative;overflow:hidden;backdrop-filter:blur(10px)}.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--card-accent,var(--cyan)),transparent);opacity:.7}
+.analysis-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:end}.field{display:grid;gap:7px}.field label{font-size:11px;color:var(--text-faint);font-weight:700;text-transform:uppercase;letter-spacing:.07em}.field input,.field select,.field textarea{width:100%;background:#09131d;color:var(--text);border:1px solid var(--glass-brd);border-radius:10px;padding:12px;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:rgba(47,207,232,.55);box-shadow:0 0 0 3px rgba(47,207,232,.08)}
+.field select:disabled{opacity:.45;cursor:not-allowed}.form-wide{grid-column:1/-1}.submit-row{display:flex;align-items:center;justify-content:space-between;gap:12px;grid-column:1/-1;margin-top:2px}
+.btn{border:1px solid var(--glass-brd);border-radius:10px;padding:11px 16px;font-weight:700;color:var(--text);background:var(--glass)}.btn-primary{background:linear-gradient(120deg,var(--cyan),#1ca8bd);color:#031016;border-color:transparent}.btn:hover{transform:translateY(-1px)}.btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.helper{font-size:11px;color:var(--text-faint);line-height:1.5}.status{font-size:12px;color:var(--text-dim)}.status.ok{color:var(--green)}.status.err{color:var(--red)}
+.result-shell{display:none}.result-shell.show{display:block}.result-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}.result-head h2{font-family:'Manrope';font-size:22px}.result-head p{color:var(--text-dim);font-size:12px;margin-top:6px}.result-actions{display:flex;gap:8px;flex-wrap:wrap}.download-btn{border:1px solid var(--glass-brd);background:var(--glass);color:var(--text);border-radius:10px;padding:10px 13px;font-size:12px;font-weight:700}.download-btn:hover{border-color:rgba(47,207,232,.4);color:var(--cyan)}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:18px}.kpi{padding:17px;border:1px solid var(--glass-brd);border-radius:14px;background:rgba(255,255,255,.025)}.kpi span{font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em}.kpi b{display:block;font-family:'Manrope';font-size:22px;margin-top:7px}.risk{color:var(--amber)}.critical{color:var(--red)}.good{color:var(--green)}
+.result-grid{display:grid;grid-template-columns:1.3fr .7fr;gap:16px;margin-top:16px}.analysis-block{margin-top:16px}.analysis-block:first-child{margin-top:0}.analysis-block h3{font-family:'Manrope';font-size:16px;margin-bottom:9px}.analysis-block p,.analysis-block li{color:var(--text-dim);font-size:13px;line-height:1.7}.analysis-block ul{padding-left:19px}.insight-list{display:grid;gap:9px}.insight{padding:12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.018)}.insight strong{display:block;font-size:12px;margin-bottom:4px}.insight span{font-size:11.5px;color:var(--text-dim);line-height:1.5}
+.loading{display:none;align-items:center;gap:10px;color:var(--text-dim);font-size:12px}.loading.show{display:flex}.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.12);border-top-color:var(--cyan);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.raw-data{white-space:pre-wrap;background:#071019;border:1px solid var(--line);padding:14px;border-radius:12px;font-family:'JetBrains Mono';font-size:11px;color:#b9ccd5;overflow:auto;max-height:360px}
+.empty{padding:34px;text-align:center;color:var(--text-faint);border:1px dashed var(--glass-brd);border-radius:14px}
+footer{position:relative;z-index:1;max-width:1500px;margin:auto;padding:25px clamp(16px,3vw,40px) 35px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:15px;color:var(--text-faint);font-size:11.5px}
+@media(max-width:1000px){nav{display:none}.menu-btn{display:block}.analysis-form{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.result-grid{grid-template-columns:1fr}}
+@media(max-width:700px){header{padding:12px 14px}.brand-text .sub,.moil-tag{display:none}main{padding:24px 14px 55px}.page-head{align-items:flex-start;flex-direction:column}.analysis-form,.kpi-grid{grid-template-columns:1fr}.form-wide{grid-column:auto}.submit-row{align-items:stretch;flex-direction:column}.submit-row .btn{width:100%}.result-head{flex-direction:column}.result-actions{width:100%}.download-btn{flex:1}.card{padding:18px}footer{flex-direction:column}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="grid-field"></div>
+
+<header>
+ <div class="brand">
+  <svg class="brand-logo" viewBox="0 0 44 44" fill="none">
+   <rect x=".5" y=".5" width="43" height="43" rx="11" fill="#081018" stroke="rgba(255,255,255,.09)"/>
+   <path d="M7 22C12 15 17 12 22 12c5 0 10 3 15 10-5 7-10 10-15 10-5 0-10-3-15-10Z" stroke="#2FCFE8" stroke-width="1.6"/>
+   <path d="m22 16.5 4 5.5-4 5.5-4-5.5 4-5.5Z" fill="#27C98B"/>
+   <ellipse cx="22" cy="22" rx="17.5" ry="7" stroke="#E3A857" stroke-width="1" stroke-dasharray="1.6 2.6"/>
+  </svg>
+  <div class="brand-text"><span class="name">DHATU DRISHTI</span><span class="sub">AI-POWERED MINING INTELLIGENCE</span></div>
+  <span class="moil-tag">MOIL</span>
+ </div>
+ <nav>
+  <a href="/">Dashboard</a>
+  <a href="/weather">Weather</a>
+  <a href="/machinery">Machinery</a>
+  <a href="/ai-analysis" class="active">AI Analysis</a>
+  <a href="/reports">Reports</a>
+ </nav>
+ <div class="header-actions">
+  <button class="profile-btn" type="button" aria-label="Profile">◉</button>
+  <button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu">☰</button>
+ </div>
+ <div class="mobile-nav" id="mobileNav">
+  <a href="/">Dashboard</a>
+  <a href="/weather">Weather</a>
+  <a href="/machinery">Machinery</a>
+  <a href="/ai-analysis" class="active">AI Analysis</a>
+  <a href="/reports">Reports</a>
+ </div>
+</header>
+
+<main id="analysis">
+ <div class="page-head">
+  <div>
+   <div class="eyebrow">AI ANALYSIS ENGINE</div>
+   <h1>Mining intelligence & prediction</h1>
+   <p>Select a state, district and mining field, submit the analysis request, and display the complete analysis returned by your backend below.</p>
+  </div>
+  <div class="live-chip"><i></i> Backend-ready analysis interface</div>
+ </div>
+
+ <section class="section">
+  <div class="section-title"><div><h2>Analysis input</h2><p>Choose the exact mining location for AI processing.</p></div></div>
+  <div class="card" style="--card-accent:var(--cyan)">
+   <form id="analysisForm" class="analysis-form">
+    <div class="field">
+     <label>State</label>
+     <select id="state" required>
+      <option value="">Select state</option>
+      <option value="Maharashtra">Maharashtra</option>
+      <option value="Madhya Pradesh">Madhya Pradesh</option>
+     </select>
+    </div>
+    <div class="field">
+     <label>District</label>
+     <select id="district" required disabled><option value="">Select district</option></select>
+    </div>
+    <div class="field">
+     <label>Mining Field</label>
+     <select id="mine" required disabled><option value="">Select mining field</option></select>
+    </div>
+    <div class="field form-wide">
+     <label>Analysis instruction <span style="color:var(--text-faint);font-weight:500;text-transform:none;letter-spacing:0">(optional)</span></label>
+     <textarea id="question" rows="3" placeholder="e.g. Analyse production risk, weather impact, machinery condition and suggest next actions."></textarea>
+    </div>
+    <div class="submit-row">
+     <span class="status" id="status">Ready to submit.</span>
+     <div style="display:flex;align-items:center;gap:12px">
+      <div class="loading" id="loading"><span class="spinner"></span>Running AI analysis…</div>
+      <button class="btn btn-primary" id="submitBtn">Run AI Analysis →</button>
+     </div>
+    </div>
+   </form>
+  </div>
+ </section>
+
+ <section class="section result-shell" id="resultSection">
+  <div class="section-title">
+   <div><h2>AI analysis result</h2><p id="resultLocation">Backend response</p></div>
+  </div>
+  <div class="card" style="--card-accent:var(--green)">
+   <div class="result-head">
+    <div>
+     <h2 id="resultTitle">Analysis complete</h2>
+     <p id="resultTime">Generated by backend</p>
+    </div>
+    <div class="result-actions">
+     <button class="download-btn" onclick="downloadReport('docx')">⇩ Download DOCX</button>
+     <button class="download-btn" onclick="downloadReport('pdf')">⇩ Download PDF</button>
+    </div>
+   </div>
+
+   <div class="kpi-grid" id="kpiGrid"></div>
+
+   <div class="result-grid">
+    <div class="card" style="padding:18px">
+     <div class="analysis-block"><h3>Executive Summary</h3><p id="summary">—</p></div>
+     <div class="analysis-block"><h3>Detailed Findings</h3><div id="findings" class="insight-list"></div></div>
+     <div class="analysis-block"><h3>Recommended Actions</h3><ul id="actions"></ul></div>
+    </div>
+    <div class="card" style="padding:18px">
+     <div class="analysis-block"><h3>Prediction / Outlook</h3><p id="prediction">—</p></div>
+     <div class="analysis-block"><h3>Machinery Recommendation</h3><p id="machinery">—</p></div>
+     <div class="analysis-block"><h3>Risk Factors</h3><div id="risks" class="insight-list"></div></div>
+    </div>
+   </div>
+
+   <div class="analysis-block">
+    <h3>Backend Data</h3>
+    <pre class="raw-data" id="rawData">{}</pre>
+   </div>
+  </div>
+ </section>
+
+ <section class="section" id="emptyResult">
+  <div class="card empty">
+   Select a mining field and click <b>Run AI Analysis</b>. The result area will automatically populate with the JSON/data returned by your Flask backend.
+  </div>
+ </section>
+</main>
+
+<footer><span>Dhatu Drishti · AI Analysis</span><span>Prototype · Flask/MySQL/AI backend ready</span></footer>
+
+<script>
+const API_BASE = ""; 
+const DATA = {
+ "Maharashtra": {
+  "Bhandara": ["Chikla Mine (MOIL)","Dongri Buzurg Mine (MOIL)"],
+  "Nagpur": ["Beldongri Mine (MOIL)","Gumgaon Mine (MOIL)","Kandri Mine (MOIL)","Munsar Mine (MOIL)","New Satak Mine (MOIL)","Old Satak Mine (MOIL)","Pali Manganese Mine","Kothulna Manganese Mine","Kirnapur Manganese Mine","Kawatha Manganese Mine","Kachurwahi–Wadegaon Manganese Mine","Parseoni Manganese Mine"]
+ },
+ "Madhya Pradesh": {
+  "Balaghat": ["Balaghat Mine (MOIL)","Ukwa Mine (MOIL)","Tirodi Mine (MOIL)","Sitapatore–Sukli Mine (MOIL)","Netra Manganese Mine","Ramrama Manganese Mine","Ghondi Manganese Mine"],
+  "Chhindwara": ["Kachidana Manganese Mine","Palaspani Manganese Mine"],
+  "Jabalpur": ["Silua Jhansi Manganese Mine","Jhansi Silua Manganese Mine"],
+  "Alirajpur": ["Jamli Choti Manganese Mine"],
+  "Jhabua": ["Kajli Dongri Manganese Mine"]
+ }
+};
+
+const stateEl=document.getElementById("state");
+const districtEl=document.getElementById("district");
+const mineEl=document.getElementById("mine");
+const form=document.getElementById("analysisForm");
+const resultSection=document.getElementById("resultSection");
+const emptyResult=document.getElementById("emptyResult");
+const statusEl=document.getElementById("status");
+const loading=document.getElementById("loading");
+const submitBtn=document.getElementById("submitBtn");
+
+stateEl.addEventListener("change",()=>{
+ districtEl.innerHTML='<option value="">Select district</option>';
+ mineEl.innerHTML='<option value="">Select mining field</option>';
+ mineEl.disabled=true;
+ districtEl.disabled=!stateEl.value;
+ if(stateEl.value) Object.keys(DATA[stateEl.value]).forEach(d=>{
+  districtEl.insertAdjacentHTML("beforeend",`<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`);
+ });
+});
+districtEl.addEventListener("change",()=>{
+ mineEl.innerHTML='<option value="">Select mining field</option>';
+ mineEl.disabled=!districtEl.value;
+ if(districtEl.value) DATA[stateEl.value][districtEl.value].forEach(m=>{
+  mineEl.insertAdjacentHTML("beforeend",`<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`);
+ });
+});
+
+function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+
+form.addEventListener("submit",async e=>{
+ e.preventDefault();
+ if(!stateEl.value||!districtEl.value||!mineEl.value)return;
+ setLoading(true);
+ statusEl.className="status";
+ statusEl.textContent="Sending location and request to backend…";
+ const payload={
+  state:stateEl.value,
+  district:districtEl.value,
+  mining_field:mineEl.value,
+  question:document.getElementById("question").value.trim()
+ };
+ try{
+  const res=await fetch(`${API_BASE}/api/ai-analysis`,{
+   method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)
+  });
+  if(!res.ok)throw new Error(`Backend returned ${res.status}`);
+  const data=await res.json();
+  showResult(data,payload,false);
+  statusEl.className="status ok";
+  statusEl.textContent="Analysis received successfully from backend.";
+ }catch(err){
+  // Demo fallback keeps the UI testable before Flask is connected.
+  const demo=demoResponse(payload);
+  showResult(demo,payload,true);
+  statusEl.className="status err";
+  statusEl.textContent="Backend unavailable — showing demo response. Connect /api/ai-analysis to use live AI.";
+  console.error(err);
+ }finally{setLoading(false)}
+});
+
+function setLoading(on){
+ loading.classList.toggle("show",on);
+ submitBtn.disabled=on;
+ submitBtn.textContent=on?"Analysing…":"Run AI Analysis →";
+}
+
+function showResult(data,payload,isDemo){
+ resultSection.classList.add("show");emptyResult.style.display="none";
+ const loc=`${payload.mining_field} · ${payload.district}, ${payload.state}`;
+ document.getElementById("resultLocation").textContent=loc;
+ document.getElementById("resultTitle").textContent=data.title||"AI Analysis Complete";
+ document.getElementById("resultTime").textContent=(data.generated_at?"Generated: "+data.generated_at+" · ":"")+(isDemo?"Demo response":"Backend response");
+
+ const kpis=data.kpis||{};
+ const kpiItems=[
+  ["Risk Level",kpis.risk_level||"—",String(kpis.risk_level||"").toLowerCase().includes("high")?"critical":"risk"],
+  ["Production Outlook",kpis.production_outlook||"—","good"],
+  ["Weather Impact",kpis.weather_impact||"—",""],
+  ["Machinery Health",kpis.machinery_health||"—",String(kpis.machinery_health||"").toLowerCase().includes("poor")?"critical":"good"]
+ ];
+ document.getElementById("kpiGrid").innerHTML=kpiItems.map(x=>`<div class="kpi"><span>${escapeHtml(x[0])}</span><b class="${x[2]}">${escapeHtml(x[1])}</b></div>`).join("");
+
+ document.getElementById("summary").textContent=data.summary||data.executive_summary||"No summary returned.";
+ document.getElementById("prediction").textContent=data.prediction||data.outlook||"No prediction returned.";
+ document.getElementById("machinery").textContent=data.machinery_recommendation||"No machinery recommendation returned.";
+
+ const findings=data.findings||data.detailed_findings||[];
+ document.getElementById("findings").innerHTML=(Array.isArray(findings)?findings:[String(findings)]).map((x,i)=>{
+  if(typeof x==="object") return `<div class="insight"><strong>${escapeHtml(x.title||x.name||`Finding ${i+1}`)}</strong><span>${escapeHtml(x.description||x.value||JSON.stringify(x))}</span></div>`;
+  return `<div class="insight"><strong>Finding ${i+1}</strong><span>${escapeHtml(x)}</span></div>`;
+ }).join("")||'<div class="insight"><span>No findings returned.</span></div>';
+
+ const actions=data.recommended_actions||data.actions||[];
+ document.getElementById("actions").innerHTML=(Array.isArray(actions)?actions:[String(actions)]).map(x=>`<li>${escapeHtml(typeof x==="object"?JSON.stringify(x):x)}</li>`).join("")||"<li>No actions returned.</li>";
+
+ const risks=data.risks||data.risk_factors||[];
+ document.getElementById("risks").innerHTML=(Array.isArray(risks)?risks:[String(risks)]).map((x,i)=>`<div class="insight"><strong>Risk ${i+1}</strong><span>${escapeHtml(typeof x==="object"?JSON.stringify(x):x)}</span></div>`).join("")||'<div class="insight"><span>No risk factors returned.</span></div>';
+
+ document.getElementById("rawData").textContent=JSON.stringify(data,null,2);
+ resultSection.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+async function downloadReport(type){
+ const payload={
+  state:stateEl.value,district:districtEl.value,mining_field:mineEl.value,
+  question:document.getElementById("question").value.trim()
+ };
+ if(!payload.mining_field){alert("Please run an analysis first.");return;}
+ const endpoint=`${API_BASE}/api/ai-analysis/report/${type}`;
+ try{
+  const res=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+  if(!res.ok)throw new Error(`Report endpoint returned ${res.status}`);
+  const blob=await res.blob();
+  const disposition=res.headers.get("Content-Disposition")||"";
+  const match=disposition.match(/filename="?([^"]+)"?/i);
+  const filename=match?match[1]:`dhatu-drishti-ai-analysis.${type}`;
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+ }catch(err){
+  // Fallback: download the currently displayed backend JSON when report endpoints are not connected.
+  const raw=document.getElementById("rawData").textContent||"{}";
+  const blob=new Blob([raw],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download=`dhatu-drishti-ai-analysis.${type}.json`;a.click();URL.revokeObjectURL(url);
+  alert(`${type.toUpperCase()} report endpoint is not connected yet. The current analysis JSON was downloaded instead.`);
+ }
+}
+
+function demoResponse(p){
+ return {
+  title:"Mining Field AI Assessment",
+  generated_at:new Date().toLocaleString(),
+  kpis:{risk_level:"Medium",production_outlook:"Stable",weather_impact:"Moderate",machinery_health:"Good"},
+  summary:`Initial AI assessment for ${p.mining_field}. The backend can combine geological, weather, production and machinery data here to generate a field-specific operational assessment.`,
+  findings:[
+   {title:"Operational condition",description:"No critical issue is indicated in this demo response. Live backend data should replace this assessment."},
+   {title:"Data integration",description:"Weather, machinery, production and historical records can be evaluated together for this mining field."},
+   {title:"Decision support",description:"The final result should provide a confidence score and evidence for each major recommendation."}
+  ],
+  prediction:"Backend prediction will appear here after the AI model processes the selected mining field.",
+  machinery_recommendation:"Backend machinery recommendations will appear here based on equipment condition, utilization, maintenance and field requirements.",
+  recommended_actions:["Connect the Flask /api/ai-analysis endpoint.","Return structured findings, predictions, risks and recommendations.","Enable the DOCX/PDF report endpoints for downloadable reports."],
+  risks:["Demo mode — not a production prediction.","Exact mine-level predictions require validated historical and live datasets."]
+ };
+}
+
+document.getElementById("menuBtn").addEventListener("click",()=>document.getElementById("mobileNav").classList.toggle("open"));
+</script>
+</body>
+</html>
